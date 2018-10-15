@@ -2,16 +2,30 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>JavaScript &amp; jQuery - Chapter 8: Ajax &amp; JSON - Loading JSON</title>
+    <title>测试地址解析</title>
     <link rel="stylesheet" href="css/c08.css" />
   </head>
   <body>
-
-    <header><h1>THE MAKER BUS</h1></header>
-    <h2>The bus stops here.</h2>
-    <section id="content"></section>
-
-    <script src="js/data-json.js"></script>
+    <h2>输入</h2>
+	请粘贴整个收货信息: <input type="text" name="fname" id="tj_input" />
+  <input  type="submit" value="解析" id="tj_button" />
+  
+ <h2>结果</h2>
+ <p>省份：<input id="province" type="text" name="fname" id="tj_input" /></p>
+ <p>地市：<input id="city" type="text" name="fname" id="tj_input" /></p>
+ <p>区县：<input id="district" type="text" name="fname" id="tj_input" /></p>
+ <p>详址：<input id="detailInfo" type="text" name="fname" id="tj_input" /></p>
+ <p>姓名：<input id="name" type="text" name="fname" id="tj_input" /></p>
+ <p>手机：<input id="mobile" type="text" name="fname" id="tj_input" /></p>
+ <p>电话：<input id="telphone" type="text" name="fname" id="tj_input" /></p>
+ <p>邮编：<input id="zipcode" type="text" name="fname" id="tj_input" /></p>
+  
+  
+  
+  
+  
+    <!-- Fetched without credentials -->
+    <script type="module" src="js/demo.js"></script>
 
   </body>
 </html>

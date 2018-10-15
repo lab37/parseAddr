@@ -63,19 +63,16 @@ function parse(address) {
   address = address.replace(/\r\n/g, ' ').replace(/\n/g, ' ').replace(/\t/g, ' ');
 
   const search = ['地址', '收货地址', '收货人', '收件人', '收货', '邮编', '电话', '：', ':', '；', ';', '，', ',', '。',];
-  // remove other words in search array
   search.forEach(str => {
     address = address.replace(new RegExp(str, 'g'), ' ')
   });
-  
-  // remove char like ' 'X2, -  
+
   address = address.replace(/ {2,}/g, ' ');
 
   address = address.replace(/(\d{3})-(\d{4})-(\d{4})/g, '$1$2$3');
 
   address = address.replace(/(\d{3}) (\d{4}) (\d{4})/g, '$1$2$3');
 
-  // get mobile and remove it from address
   const mobileReg = /(86-[1][0-9]{10})|(86[1][0-9]{10})|([1][0-9]{10})/g;
   const mobile = mobileReg.exec(address);
   if (mobile) {
@@ -83,15 +80,13 @@ function parse(address) {
     address = address.replace(mobile[0], ' ')
   }
 
-  // get phone and remove it from address
   const phoneReg = /(([0-9]{3,4}-)[0-9]{7,8})|([0-9]{12})|([0-9]{11})|([0-9]{10})|([0-9]{9})|([0-9]{8})|([0-9]{7})/g;
   const phone = phoneReg.exec(address);
   if (phone) {
     parse.phone = phone[0];
     address = address.replace(phone[0], ' ')
   }
-  
-  // get zipReg and remove it from address
+
   const zipReg = /([0-9]{6})/g;
   const zip = zipReg.exec(address);
   if (zip) {
@@ -101,19 +96,18 @@ function parse(address) {
 
   address = address.replace(/ {2,}/, ' ');
 
-  // 正向解析，返回{province: string, city: string, area: string, addr: string}
-  let detail = detail_parse_forward(address.trim());
- 
-  //如果没有解析到城市，则使用反向解析再试一下
-  if (!detail.city) {
-    detail = detail_parse(address.trim());
-    if (detail.area && !detail.city) {
-      detail = detail_parse(address.trim(), {
+  // console.log(address)
+  let detail = detail_parse_forward(address.trim()); //正向解析地址
+
+  if (!detail.city) { //如果找到了地市，这个有问题，万一只有省县呢TODO something。
+    detail = detail_parse(address.trim()); //逆向解析地址
+    if (detail.area && !detail.city) {//if也没有找到地市，但是找到了区县
+      detail = detail_parse(address.trim(), { 
         ignoreArea: true
       });
-      console.log('没有区县smart_parse->ignoreArea');
+      console.log('smart_parse->ignoreArea');
     }else{
-      console.log('smart_parse');
+      console.log('没有区县smart_parse');
     }
     //这个待完善
     const list = address.replace(detail.province, '').replace(detail.city, '').replace(detail.area, '').split(' ').filter(str => str);
@@ -166,25 +160,25 @@ function detail_parse_forward(address) {
     name: '',
   };
 
-  const provinceKey = ['特别行政区', '古自治区', '维吾尔自治区', '壮族自治区', '回族自治区', '自治区', '省省直辖', '省', '市'];
-  const cityKey = ['布依族苗族自治州', '苗族侗族自治州', '自治州', '州', '市', '县'];
+  const provinceKey = ['特别行政区', '古自治区', '维吾尔自治区', '壮族自治区', '回族自治区', '自治区', '省省直辖', '省', '市']; //省份结尾关键字
+  const cityKey = ['布依族苗族自治州', '苗族侗族自治州', '自治州', '州', '市', '县']; //地市结尾关键字
 
   for (let i in defaultData) {
     const province = defaultData[i];
-    let index = address.indexOf(province.name);
-    if (index > -1) {
+    let index = address.indexOf(province.name);//从剩余的字符串中查找省名，把每一个defaulData中的省名跟字符串做下对比。看看字符串里有没有。
+    if (index > -1) { //如果找到了省
       if (index > 0) {
         //省份不是在第一位，在省份之前的字段识别为名称
         parse.name = address.substr(0, index).trim();
       }
-      parse.province = province.name;
-      address = address.substr(index + province.name.length);
-      for (let k in provinceKey) {
+      parse.province = province.name; //取出省名
+      address = address.substr(index + province.name.length);//从字串中删掉省名
+      for (let k in provinceKey) {  //去掉省名后面的省关键字
         if (address.indexOf(provinceKey[k]) === 0) {
           address = address.substr(provinceKey[k].length);
         }
       }
-      for (let j in province.city) {
+      for (let j in province.city) { //处理市名
         const city = province.city[j];
         index = address.indexOf(city.name);
         if (index > -1 && index < 3) {
@@ -196,7 +190,7 @@ function detail_parse_forward(address) {
             }
           }
           if (city.area) {
-            for (let k in city.area) {
+            for (let k in city.area) {  //处理区名
               const area = city.area[k];
               index = address.indexOf(area);
               if (index > -1 && index < 3) {
